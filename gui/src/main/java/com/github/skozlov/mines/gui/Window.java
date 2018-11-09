@@ -6,6 +6,8 @@ import javax.swing.*;
 
 public class Window extends JFrame {
 	public Window(Model model){
-		//todo
+		super("Minesweeper");
+		setContentPane(new MainPanel(model));
+		pack();
 	}
 }
