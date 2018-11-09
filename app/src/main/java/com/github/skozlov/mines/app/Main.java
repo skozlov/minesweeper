@@ -8,13 +8,18 @@ import javax.swing.*;
 
 import static javax.swing.SwingUtilities.invokeLater;
 import com.github.skozlov.mines.gui.Window;
+import org.apache.commons.cli.ParseException;
 
 import java.awt.*;
 
 public class Main {
 	private Main(){}
 
-	public static void main(String[] args) {
+	public static void main(String[] args) throws ParseException {
+		Thread.setDefaultUncaughtExceptionHandler((t, e) -> {
+			e.printStackTrace();
+			System.exit(-1);
+		});
 		Args arguments = new Args(args);
 		if (arguments.isHelpRequested()){
 			arguments.printHelp();
@@ -23,10 +28,6 @@ public class Main {
 		Field field = new RandomFieldGenerator().generate(arguments.getFieldParameters());
 		Model model = new Model(field);
 		invokeLater(() -> {
-			Thread.setDefaultUncaughtExceptionHandler((t, e) -> {
-				e.printStackTrace();
-				System.exit(-1);
-			});
 			JFrame window = new Window(model);
 			window.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 			window.setLocationRelativeTo(null);

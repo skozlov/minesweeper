@@ -1,6 +1,6 @@
 package com.github.skozlov.mines.core;
 
-public final class MatrixCoordinate {
+public class MatrixCoordinate {
 	@Override
 	public int hashCode() {
 

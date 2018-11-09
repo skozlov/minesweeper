@@ -1,4 +1,4 @@
 package com.github.skozlov.mines.core;
 
-public final class Field {
+public class Field {
 }
