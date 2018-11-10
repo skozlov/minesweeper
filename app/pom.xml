@@ -25,4 +25,34 @@
         </dependency>
     </dependencies>
 
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <configuration>
+                    <archive>
+                        <manifest>
+                            <mainClass>com.github.skozlov.mines.app.Main</mainClass>
+                        </manifest>
+                    </archive>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>com.jolira</groupId>
+                <artifactId>onejar-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>one-jar</goal>
+                        </goals>
+                        <configuration>
+                            <filename>mines.jar</filename>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+
 </project>
