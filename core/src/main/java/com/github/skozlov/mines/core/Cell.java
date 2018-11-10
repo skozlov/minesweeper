@@ -26,6 +26,10 @@ public class Cell {
 	}
 
 	public static class Free extends Cell {
+		public Free(int neighborMineNumber) {
+			//todo
+		}
+
 		public int getNeighborMineNumber() {
 
 		}

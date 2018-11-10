@@ -1,39 +1,43 @@
 package com.github.skozlov.mines.core;
 
 import java.util.Arrays;
-import java.util.stream.Stream;
+import java.util.Set;
 
 public final class Field {
 	private final Cell[][] cells;
 	private final MatrixDimension dimension;
 	private final int mineNumber;
 
-	public Field(Cell[][] cells){
-		if (cells.length == 0){
-			throw new IllegalArgumentException("Empty array");
+	public Field(MatrixDimension dimension, Set<MatrixCoordinate> mineCoordinates){
+		this.dimension = dimension;
+		mineNumber = mineCoordinates.size();
+		int cellNumber = dimension.getCellNumber();
+		if (mineNumber >= cellNumber){
+			throw new IllegalArgumentException(String.format("%d cells, %d are mined", cellNumber, mineNumber));
 		}
-		int columnNumber = cells[0].length;
-		if (columnNumber == 0){
-			throw new IllegalArgumentException("Empty first row");
-		}
-		dimension = new MatrixDimension(cells.length, columnNumber);
-		int mineNumber = 0;
-		this.cells = new Cell[cells.length][];
+		int columnNumber = dimension.getColumnNumber();
+		cells = new Cell[dimension.getRowNumber()][];
 		for (int rowIndex = 0; rowIndex < cells.length; rowIndex++){
-			Cell[] row = cells[rowIndex];
-			if (row.length != columnNumber){
-				throw new IllegalArgumentException(String.format(
-					"At least 2 rows of different size: %d and %d",
-					columnNumber, row.length
-				));
+			cells[rowIndex] = new Cell[columnNumber];
+		}
+		mineCoordinates.forEach(coordinate -> {
+			coordinate.checkFor(dimension);
+			cells[coordinate.getRowIndex()][coordinate.getColumnIndex()] = Cell.Mined.INSTANCE;
+		});
+		dimension.forEachCoordinate(coordinate -> {
+			int rowIndex = coordinate.getRowIndex();
+			int columnIndex = coordinate.getColumnIndex();
+			if (cells[rowIndex][columnIndex] == null){
+				cells[rowIndex][columnIndex] = new Cell.Free(
+					(int) coordinate.getNeighbors(dimension).stream()
+						.filter(c -> {
+							Cell cell = cells[c.getRowIndex()][c.getColumnIndex()];
+							return cell != null && cell.isMined();
+						})
+						.count()
+				);
 			}
-			this.cells[rowIndex] = Arrays.copyOf(row, row.length);
-			mineNumber += Stream.of(row).filter(Cell::isMined).count();
-		}
-		if (mineNumber == dimension.getCellNumber()){
-			throw new IllegalArgumentException("All cells are mined");
-		}
-		this.mineNumber = mineNumber;
+		});
 	}
 
 	public MatrixDimension getDimension() {
