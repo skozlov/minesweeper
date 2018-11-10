@@ -11,7 +11,18 @@ public class Cell {
 		//todo
 	}
 
+	@Override
+	public int hashCode() {
+
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+
+	}
+
 	public static class Mined extends Cell {
+		public static final Mined INSTANCE = ;
 	}
 
 	public static class Free extends Cell {
