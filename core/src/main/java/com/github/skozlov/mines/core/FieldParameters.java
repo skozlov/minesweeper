@@ -16,4 +16,8 @@ public class FieldParameters {
 	public int getMineNumber() {
 
 	}
+
+	public MatrixDimension getDimension() {
+
+	}
 }
