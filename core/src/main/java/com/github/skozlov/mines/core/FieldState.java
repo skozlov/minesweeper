@@ -11,7 +11,8 @@ public final class FieldState {
 	private final int mineNumber;
 	private final int markedAsMinedNumber;
 	private final int intactNumber;
-	private final boolean gameOver;
+	private final boolean won;
+	private final boolean failed;
 
 	private FieldState(
 		CellState[][] cells,
@@ -25,7 +26,8 @@ public final class FieldState {
 		this.markedAsMinedNumber = markedAsMinedNumber;
 		this.mineNumber = mineNumber;
 		this.intactNumber = intactNumber;
-		gameOver = exploded || markedAsMinedNumber == mineNumber && intactNumber == 0;
+		failed = exploded;
+		won = !exploded && markedAsMinedNumber == mineNumber && intactNumber == 0;
 	}
 
 	public static FieldState allIntact(Field field) {
@@ -70,16 +72,20 @@ public final class FieldState {
 	}
 
 	public boolean isGameOver() {
-		return gameOver;
+		return won || failed;
+	}
+
+	public boolean isWon() {
+		return won;
 	}
 
 	public FieldState open(MatrixCoordinate coordinate) {
-		return (gameOver || getCell(coordinate).isOpen()) ? this : open(Collections.singleton(coordinate));
+		return (isGameOver() || getCell(coordinate).isOpen()) ? this : open(Collections.singleton(coordinate));
 	}
 
 	public FieldState openIntactNeighbors(MatrixCoordinate coordinate) {
 		CellState cell = getCell(coordinate);
-		if (gameOver || !cell.isOpen()){
+		if (isGameOver() || !cell.isOpen()){
 			return this;
 		}
 		Collection<MatrixCoordinate> neighbors = coordinate.getNeighbors(dimension);
@@ -155,7 +161,7 @@ public final class FieldState {
 	}
 
 	public FieldState markAsMined(MatrixCoordinate coordinate) {
-		if (gameOver){
+		if (isGameOver()){
 			return this;
 		}
 		CellState cell = getCell(coordinate);
@@ -174,7 +180,7 @@ public final class FieldState {
 	}
 
 	public FieldState unmarkAsMined(MatrixCoordinate coordinate) {
-		if (gameOver){
+		if (isGameOver()){
 			return this;
 		}
 		CellState cell = getCell(coordinate);
@@ -217,7 +223,8 @@ public final class FieldState {
 		return this.mineNumber == that.mineNumber
 			&& this.markedAsMinedNumber == that.markedAsMinedNumber
 			&& this.intactNumber == that.intactNumber
-			&& this.gameOver == that.gameOver
+			&& this.won == that.won
+			&& this.failed == that.failed
 			&& Arrays.deepEquals(this.cells, that.cells);
 	}
 }
