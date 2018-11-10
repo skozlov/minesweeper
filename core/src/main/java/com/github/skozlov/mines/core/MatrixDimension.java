@@ -1,5 +1,7 @@
 package com.github.skozlov.mines.core;
 
+import java.util.function.Consumer;
+
 public class MatrixDimension {
 	public MatrixDimension(int rowNumber, int columnNumber) {
 		//todo
@@ -15,5 +17,9 @@ public class MatrixDimension {
 
 	public int getCellNumber() {
 
+	}
+
+	public void forEachCoordinate(Consumer<MatrixCoordinate> action){
+		//todo
 	}
 }

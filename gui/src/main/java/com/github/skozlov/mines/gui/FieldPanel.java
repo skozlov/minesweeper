@@ -20,8 +20,9 @@ public class FieldPanel extends JPanel {
 		super(new GridBagLayout());
 
 		this.model = model;
-		int rowNumber = model.getRowNumber();
-		int columnNumber = model.getColumnNumber();
+		MatrixDimension dimension = model.getDimension();
+		int rowNumber = dimension.getRowNumber();
+		int columnNumber = dimension.getColumnNumber();
 
 		gridPanel = new JPanel(new GridLayout(rowNumber, columnNumber)){
 			@Override
@@ -65,9 +66,9 @@ public class FieldPanel extends JPanel {
 					}
 				}
 			} else {
-				for (MatrixCoordinate coordinate : field.getCoordinates()){
-					cells[coordinate.getRowIndex()][coordinate.getColumnIndex()].update(field.getCell(coordinate));
-				}
+				field.getDimension().forEachCoordinate(coordinate ->
+					cells[coordinate.getRowIndex()][coordinate.getColumnIndex()].update(field.getCell(coordinate))
+				);
 			}
 		});
 	}

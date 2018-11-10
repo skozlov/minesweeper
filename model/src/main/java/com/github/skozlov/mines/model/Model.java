@@ -3,14 +3,14 @@ package com.github.skozlov.mines.model;
 import com.github.skozlov.mines.core.Field;
 import com.github.skozlov.mines.core.FieldState;
 import com.github.skozlov.mines.core.MatrixCoordinate;
+import com.github.skozlov.mines.core.MatrixDimension;
 
 import java.util.Collection;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.function.Function;
 
 public final class Model {
-	private final int rowNumber;
-	private final int columnNumber;
+	private final MatrixDimension dimension;
 
 	private FieldState field;
 	private final Object monitor = new Object();
@@ -19,16 +19,11 @@ public final class Model {
 
 	public Model(Field field){
 		this.field = FieldState.allIntact(field);
-		rowNumber = field.getRowNumber();
-		columnNumber = field.getColumnNumber();
+		dimension = field.getDimension();
 	}
 
-	public int getRowNumber() {
-		return rowNumber;
-	}
-
-	public int getColumnNumber() {
-		return columnNumber;
+	public MatrixDimension getDimension(){
+		return dimension;
 	}
 
 	public FieldState getFieldState() {
