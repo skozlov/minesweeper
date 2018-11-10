@@ -20,6 +20,14 @@ public class CellState {
 
 	}
 
+	public boolean isIntact() {
+
+	}
+
+	public boolean isOpen() {
+
+	}
+
 	public static class Intact extends CellState {
 	}
 
