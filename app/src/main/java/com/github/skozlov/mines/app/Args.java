@@ -1,6 +1,7 @@
 package com.github.skozlov.mines.app;
 
 import com.github.skozlov.mines.core.FieldParameters;
+import com.github.skozlov.mines.core.MatrixDimension;
 import org.apache.commons.cli.*;
 
 import java.util.LinkedHashMap;
@@ -22,9 +23,9 @@ public class Args {
 	private static final String BEGINNER_PRESET_NAME = "beginner";
 	private static final String DEFAULT_PRESET_NAME = BEGINNER_PRESET_NAME;
 	private static final Map<String, FieldParameters> PRESETS = new LinkedHashMap<String, FieldParameters>(){{
-		put(BEGINNER_PRESET_NAME, FieldParameters.fromRowsColumnsAndMines(9, 9, 10));
-		put("intermediate", FieldParameters.fromRowsColumnsAndMines(16, 16, 40));
-		put("expert", FieldParameters.fromRowsColumnsAndMines(16, 30, 99));
+		put(BEGINNER_PRESET_NAME, new FieldParameters(new MatrixDimension(9, 9), 10));
+		put("intermediate", new FieldParameters(new MatrixDimension(16, 16), 40));
+		put("expert", new FieldParameters(new MatrixDimension(16, 30), 99));
 	}};
 
 	private static final CommandLineParser PARSER = new DefaultParser();
@@ -106,8 +107,8 @@ public class Args {
 								return String.format(
 									"%s: %dx%d cells with %d mines.",
 									name,
-									parameters.getRowNumber(),
-									parameters.getColumnNumber(),
+									parameters.getDimension().getRowNumber(),
+									parameters.getDimension().getColumnNumber(),
 									parameters.getMineNumber()
 								);
 							})
@@ -133,14 +134,14 @@ public class Args {
 		}
 		int rowNumber = Optional.ofNullable(options.getOptionValue(ROWS_NUMBER_KEY))
 			.map(Integer::parseInt)
-			.orElseGet(preset::getRowNumber);
+			.orElseGet(() -> preset.getDimension().getRowNumber());
 		int columnNumber = Optional.ofNullable(options.getOptionValue(COLUMNS_NUMBER_KEY))
 			.map(Integer::parseInt)
-			.orElseGet(preset::getColumnNumber);
+			.orElseGet(() -> preset.getDimension().getColumnNumber());
 		int mineNumber = Optional.ofNullable(options.getOptionValue(MINES_NUMBER_KEY))
 			.map(Integer::parseInt)
 			.orElseGet(() -> min(preset.getMineNumber(), rowNumber * columnNumber));
-		fieldParameters = FieldParameters.fromRowsColumnsAndMines(rowNumber, columnNumber, mineNumber);
+		fieldParameters = new FieldParameters(new MatrixDimension(rowNumber, columnNumber), mineNumber);
 	}
 
 	public boolean isHelpRequested() {
