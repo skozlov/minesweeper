@@ -10,14 +10,7 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>mines-core</artifactId>
+    <artifactId>mines-commons</artifactId>
 
-    <dependencies>
-        <dependency>
-            <groupId>${groupId}</groupId>
-            <artifactId>mines-commons</artifactId>
-            <version>${version}</version>
-        </dependency>
-    </dependencies>
 
 </project>

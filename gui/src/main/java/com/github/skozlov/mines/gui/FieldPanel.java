@@ -2,6 +2,7 @@ package com.github.skozlov.mines.gui;
 
 import com.github.skozlov.mines.core.FieldState;
 import com.github.skozlov.mines.core.MatrixCoordinate;
+import com.github.skozlov.mines.core.MatrixDimension;
 import com.github.skozlov.mines.model.Model;
 
 import javax.swing.*;
@@ -49,8 +50,9 @@ public class FieldPanel extends JPanel {
 	private void update(FieldState field){
 		invokeLater(() -> {
 			if (cells == null){
-				int rowNumber = field.getRowNumber();
-				int columnNumber = field.getColumnNumber();
+				MatrixDimension dimension = field.getDimension();
+				int rowNumber = dimension.getRowNumber();
+				int columnNumber = dimension.getColumnNumber();
 				cells = new CellGui[rowNumber][];
 				for (int rowIndex = 0; rowIndex < rowNumber; rowIndex++){
 					CellGui[] row = new CellGui[columnNumber];

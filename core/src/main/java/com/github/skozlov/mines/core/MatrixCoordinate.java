@@ -1,5 +1,7 @@
 package com.github.skozlov.mines.core;
 
+import java.util.List;
+
 public class MatrixCoordinate {
 	public MatrixCoordinate(int rowIndex, int columnIndex) {
 		//todo
@@ -20,6 +22,10 @@ public class MatrixCoordinate {
 	}
 
 	public int getColumnIndex() {
+
+	}
+
+	public List<MatrixCoordinate> getNeighbors(MatrixDimension matrixDimension) {
 
 	}
 }

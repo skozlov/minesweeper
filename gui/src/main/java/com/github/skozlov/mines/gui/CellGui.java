@@ -106,10 +106,13 @@ public class CellGui extends JButton {
 			},
 			markedAsMined -> {
 				setText("⚑");
-				setFont(markedAsMined.getCell().isMined()
-					? FontUtils.strikeOff(getFont())
-					: FontUtils.strikeOn(getFont())
-				);
+				setFont(FontUtils.strikeOff(getFont()));
+				setForeground(RED);
+				setBackground(null);
+			},
+			wronglyMarkedAsMined -> {
+				setText("⚑");
+				setFont(FontUtils.strikeOn(getFont()));
 				setForeground(RED);
 				setBackground(null);
 			},
