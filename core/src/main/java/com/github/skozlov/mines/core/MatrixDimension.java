@@ -1,5 +1,6 @@
 package com.github.skozlov.mines.core;
 
+import java.util.List;
 import java.util.function.Consumer;
 
 public class MatrixDimension {
@@ -21,5 +22,9 @@ public class MatrixDimension {
 
 	public void forEachCoordinate(Consumer<MatrixCoordinate> action){
 		//todo
+	}
+
+	public List<MatrixCoordinate> coordinatesToList() {
+
 	}
 }
