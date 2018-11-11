@@ -14,8 +14,13 @@
 
     <dependencies>
         <dependency>
-            <groupId>com.github.skozlov</groupId>
+            <groupId>${groupId}</groupId>
             <artifactId>mines-gui</artifactId>
+            <version>${version}</version>
+        </dependency>
+        <dependency>
+            <groupId>${groupId}</groupId>
+            <artifactId>mines-cli</artifactId>
             <version>${version}</version>
         </dependency>
         <dependency>

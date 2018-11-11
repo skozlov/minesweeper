@@ -1,5 +1,6 @@
 package com.github.skozlov.mines.app;
 
+import com.github.skozlov.mines.cli.View;
 import com.github.skozlov.mines.core.Field;
 import com.github.skozlov.mines.core.RandomFieldGenerator;
 import com.github.skozlov.mines.model.Model;
@@ -11,6 +12,7 @@ import com.github.skozlov.mines.gui.Window;
 import org.apache.commons.cli.ParseException;
 
 import java.awt.*;
+import java.io.OutputStreamWriter;
 
 public class Main {
 	private Main(){}
@@ -27,6 +29,7 @@ public class Main {
 		}
 		Field field = new RandomFieldGenerator().generate(arguments.getFieldParameters());
 		Model model = new Model(field);
+		new View(model, new OutputStreamWriter(System.out));
 		invokeLater(() -> {
 			JFrame window = new Window(model);
 			window.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);

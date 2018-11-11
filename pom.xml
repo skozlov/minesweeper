@@ -16,6 +16,7 @@
         <module>model</module>
         <module>gui</module>
         <module>app</module>
+        <module>cli</module>
     </modules>
 
 </project>

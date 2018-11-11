@@ -1,6 +1,7 @@
 package com.github.skozlov.mines.core;
 
 import java.util.function.Consumer;
+import java.util.function.Function;
 
 public abstract class Cell {
 	private Cell(){}
@@ -10,6 +11,8 @@ public abstract class Cell {
 	}
 
 	public abstract void fold(Consumer<Mined> mined, Consumer<Free> free);
+
+	public abstract <T> T fold(Function<Mined, T> mined, Function<Free, T> free);
 
 	public static final class Mined extends Cell {
 		public static final Mined INSTANCE = new Mined();
@@ -26,6 +29,11 @@ public abstract class Cell {
 		@Override
 		public void fold(Consumer<Mined> mined, Consumer<Free> free) {
 			mined.accept(this);
+		}
+
+		@Override
+		public <T> T fold(Function<Mined, T> mined, Function<Free, T> free) {
+			return mined.apply(this);
 		}
 	}
 
@@ -50,6 +58,11 @@ public abstract class Cell {
 		@Override
 		public void fold(Consumer<Mined> mined, Consumer<Free> free) {
 			free.accept(this);
+		}
+
+		@Override
+		public <T> T fold(Function<Mined, T> mined, Function<Free, T> free) {
+			return free.apply(this);
 		}
 
 		@Override

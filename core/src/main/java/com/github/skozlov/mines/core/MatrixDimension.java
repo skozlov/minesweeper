@@ -63,4 +63,8 @@ public final class MatrixDimension {
 		MatrixDimension that = (MatrixDimension) obj;
 		return this.rowNumber == that.rowNumber && this.columnNumber == that.columnNumber;
 	}
+
+	public int getMaxColumnIndex() {
+		return columnNumber - 1;
+	}
 }

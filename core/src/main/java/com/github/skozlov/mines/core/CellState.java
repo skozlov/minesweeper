@@ -2,6 +2,7 @@ package com.github.skozlov.mines.core;
 
 import java.util.Objects;
 import java.util.function.Consumer;
+import java.util.function.Function;
 
 public abstract class CellState {
 	private final Cell cell;
@@ -34,6 +35,14 @@ public abstract class CellState {
 		Consumer<Exploded> exploded
 	);
 
+	public abstract <T> T fold(
+		Function<Intact, T> intact,
+		Function<MarkedAsMined, T> markedAsMined,
+		Function<WronglyMarkedAsMined, T> wronglyMarkedAsMined,
+		Function<Open, T> open,
+		Function<Exploded, T> exploded
+	);
+
 	@Override
 	public int hashCode() {
 		return Objects.hash(cell, getClass());
@@ -64,6 +73,17 @@ public abstract class CellState {
 		) {
 			intact.accept(this);
 		}
+
+		@Override
+		public <T> T fold(
+			Function<Intact, T> intact,
+			Function<MarkedAsMined, T> markedAsMined,
+			Function<WronglyMarkedAsMined, T> wronglyMarkedAsMined,
+			Function<Open, T> open,
+			Function<Exploded, T> exploded
+		) {
+			return intact.apply(this);
+		}
 	}
 
 	public static class MarkedAsMined extends CellState {
@@ -90,6 +110,17 @@ public abstract class CellState {
 		) {
 			markedAsMined.accept(this);
 		}
+
+		@Override
+		public <T> T fold(
+			Function<Intact, T> intact,
+			Function<MarkedAsMined, T> markedAsMined,
+			Function<WronglyMarkedAsMined, T> wronglyMarkedAsMined,
+			Function<Open, T> open,
+			Function<Exploded, T> exploded
+		) {
+			return markedAsMined.apply(this);
+		}
 	}
 
 	public static final class WronglyMarkedAsMined extends MarkedAsMined{
@@ -106,6 +137,17 @@ public abstract class CellState {
 			Consumer<Exploded> exploded
 		) {
 			wronglyMarkedAsMined.accept(this);
+		}
+
+		@Override
+		public <T> T fold(
+			Function<Intact, T> intact,
+			Function<MarkedAsMined, T> markedAsMined,
+			Function<WronglyMarkedAsMined, T> wronglyMarkedAsMined,
+			Function<Open, T> open,
+			Function<Exploded, T> exploded
+		) {
+			return wronglyMarkedAsMined.apply(this);
 		}
 	}
 
@@ -133,6 +175,17 @@ public abstract class CellState {
 		) {
 			open.accept(this);
 		}
+
+		@Override
+		public <T> T fold(
+			Function<Intact, T> intact,
+			Function<MarkedAsMined, T> markedAsMined,
+			Function<WronglyMarkedAsMined, T> wronglyMarkedAsMined,
+			Function<Open, T> open,
+			Function<Exploded, T> exploded
+		) {
+			return open.apply(this);
+		}
 	}
 
 	public static final class Exploded extends Open {
@@ -151,6 +204,17 @@ public abstract class CellState {
 			Consumer<Exploded> exploded
 		) {
 			exploded.accept(this);
+		}
+
+		@Override
+		public <T> T fold(
+			Function<Intact, T> intact,
+			Function<MarkedAsMined, T> markedAsMined,
+			Function<WronglyMarkedAsMined, T> wronglyMarkedAsMined,
+			Function<Open, T> open,
+			Function<Exploded, T> exploded
+		) {
+			return exploded.apply(this);
 		}
 	}
 }
