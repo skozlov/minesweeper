@@ -37,7 +37,7 @@ public final class View {
 	}
 
 	private void printField(){
-		writer.println(fieldToString() + lineSeparator());
+		writer.println(fieldToString());
 	}
 
 	private String fieldToString() {
