@@ -13,6 +13,12 @@ import java.util.concurrent.Executors;
 import static java.lang.System.lineSeparator;
 
 public final class View {
+	public static final char INTACT_CELL = '_';
+	public static final char MARKED_CELL = '#';
+	public static final char WRONGLY_MARKED_CELL = '$';
+	public static final char MINED_CELL = '*';
+	public static final char EXPLODED_CELL = '@';
+
 	private FieldState field;
 	private final Executor executor = Executors.newSingleThreadExecutor();
 	private final PrintWriter writer;
@@ -56,14 +62,14 @@ public final class View {
 
 	private char cellToChar(CellState cell) {
 		return cell.fold(
-			intact -> '_',
-			markedAsMined -> '#',
-			wronglyMarkedAsMined -> '$',
+			intact -> INTACT_CELL,
+			markedAsMined -> MARKED_CELL,
+			wronglyMarkedAsMined -> WRONGLY_MARKED_CELL,
 			open -> cell.getCell().fold(
-				mined -> '*',
+				mined -> MINED_CELL,
 				free -> Integer.toString(free.getNeighborMineNumber()).charAt(0)
 			),
-			exploded -> '@'
+			exploded -> EXPLODED_CELL
 		);
 	}
 

@@ -1,5 +1,7 @@
 package com.github.skozlov.mines.app;
 
+import com.github.skozlov.mines.cli.Controller;
+import com.github.skozlov.mines.cli.View;
 import com.github.skozlov.mines.core.FieldParameters;
 import com.github.skozlov.mines.core.MatrixDimension;
 import org.apache.commons.cli.*;
@@ -8,6 +10,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static java.lang.Math.min;
 import static java.lang.System.lineSeparator;
@@ -151,7 +154,34 @@ public class Args {
 	public void printHelp(){
 		HELP_FORMATTER.printHelp(
 			String.format("java -jar mines.jar [-options]%swhere options include:", lineSeparator()),
-			OPTIONS
+			null,
+			OPTIONS,
+			Stream.of(
+				"",
+				"Along with GUI, this program supports CLI.",
+				"",
+				"In the console output, cells are represented as follows:",
+				String.format("  %c - neither open nor marked;", View.INTACT_CELL),
+				String.format("  %c - marked (the player believes it is mined);", View.MARKED_CELL),
+				String.format("  %c - marked, but is not mined (only when the game is lost);", View.WRONGLY_MARKED_CELL),
+				String.format("  %c - mined (only when the game is lost);", View.MINED_CELL),
+				"  a number from 0 to 8 - open and not mined, contains the specified amount of mines around;",
+				String.format("  %c - mined and is open by the user (only when the game is lost).", View.EXPLODED_CELL),
+				"",
+				"The console input supports commands of the following structure: <command> <row> <column>, where",
+				"  <command> is one of:",
+				String.format("    %s - open the cell (if you believe it is not mined);", Controller.OPEN_COMMAND),
+				String.format(
+					"    %s - open all non-marked cells around the cell (works only when the cell is open, not mined, and its number is the same as the number of marks around);",
+					Controller.OPEN_INTACT_NEIGHBORS_COMMAND
+				),
+				String.format("    %s - mark the cell (if you believe it is mined);", Controller.MARK_AS_MINED_COMMAND),
+				String.format(
+					"    %s - unmark the cell (if it is marked but you believe it is not mined);",
+					Controller.UNMARK_AS_MINED_COMMAND
+				),
+				"  <row> and <column> are coordinates of the cell to apply the command to (the cell in the top left corner has row = column = 1)."
+			).collect(Collectors.joining(lineSeparator()))
 		);
 	}
 

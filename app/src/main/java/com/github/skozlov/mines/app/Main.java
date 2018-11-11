@@ -1,18 +1,18 @@
 package com.github.skozlov.mines.app;
 
-import com.github.skozlov.mines.cli.View;
+import com.github.skozlov.mines.cli.CLI;
 import com.github.skozlov.mines.core.Field;
 import com.github.skozlov.mines.core.RandomFieldGenerator;
-import com.github.skozlov.mines.model.Model;
-
-import javax.swing.*;
-
-import static javax.swing.SwingUtilities.invokeLater;
 import com.github.skozlov.mines.gui.Window;
+import com.github.skozlov.mines.model.Model;
 import org.apache.commons.cli.ParseException;
 
+import javax.swing.*;
 import java.awt.*;
+import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
+
+import static javax.swing.SwingUtilities.invokeLater;
 
 public class Main {
 	private Main(){}
@@ -29,7 +29,12 @@ public class Main {
 		}
 		Field field = new RandomFieldGenerator().generate(arguments.getFieldParameters());
 		Model model = new Model(field);
-		new View(model, new OutputStreamWriter(System.out));
+		new CLI(
+			model,
+			new InputStreamReader(System.in),
+			new OutputStreamWriter(System.out),
+			new OutputStreamWriter(System.err)
+		);
 		invokeLater(() -> {
 			JFrame window = new Window(model);
 			window.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
