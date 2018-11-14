@@ -67,6 +67,6 @@ public final class Field {
 			return false;
 		}
 		Field that = (Field) obj;
-		return this.mineNumber == that.mineNumber && this.cells == that.cells;
+		return this.mineNumber == that.mineNumber && Arrays.deepEquals(this.cells, that.cells);
 	}
 }
