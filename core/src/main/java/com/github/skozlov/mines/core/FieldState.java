@@ -1,8 +1,10 @@
 package com.github.skozlov.mines.core;
 
 import com.github.skozlov.mines.commons.Mutable;
+import com.github.skozlov.mines.core.command.Command;
 
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public final class FieldState {
@@ -77,6 +79,16 @@ public final class FieldState {
 
 	public boolean isWon() {
 		return won;
+	}
+
+	public FieldState execute(Command command){
+		Function<MatrixCoordinate, FieldState> action = command.getType().fold(
+			() -> this::open,
+			() -> this::openIntactNeighbors,
+			() -> this::markAsMined,
+			() -> this::unmarkAsMined
+		);
+		return action.apply(command.getCoordinate());
 	}
 
 	public FieldState open(MatrixCoordinate coordinate) {

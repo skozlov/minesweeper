@@ -1,18 +1,19 @@
 package com.github.skozlov.mines.cli;
 
 import com.github.skozlov.mines.core.MatrixCoordinate;
+import com.github.skozlov.mines.core.command.Command;
+import com.github.skozlov.mines.core.command.CommandType;
 import com.github.skozlov.mines.model.Model;
 
 import java.io.*;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.function.BiConsumer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 public class Controller {
-	private static final Map<String, BiConsumer<Model, MatrixCoordinate>> COMMAND_TYPES;
+	private static final Map<String, CommandType> COMMAND_TYPES;
 	private static final String COMMAND_TYPE_GROUP = "commandType";
 	private static final String ROW_GROUP = "row";
 	private static final String COLUMN_GROUP = "column";
@@ -25,10 +26,10 @@ public class Controller {
 
 	static {
 		COMMAND_TYPES = new LinkedHashMap<>(4, 1);
-		COMMAND_TYPES.put(OPEN_COMMAND, Model::open);
-		COMMAND_TYPES.put(OPEN_INTACT_NEIGHBORS_COMMAND, Model::openIntactNeighbors);
-		COMMAND_TYPES.put(MARK_AS_MINED_COMMAND, Model::markAsMined);
-		COMMAND_TYPES.put(UNMARK_AS_MINED_COMMAND, Model::unmarkAsMined);
+		COMMAND_TYPES.put(OPEN_COMMAND, CommandType.OPEN);
+		COMMAND_TYPES.put(OPEN_INTACT_NEIGHBORS_COMMAND, CommandType.OPEN_INTACT_NEIGHBORS);
+		COMMAND_TYPES.put(MARK_AS_MINED_COMMAND, CommandType.MARK_AS_MINED);
+		COMMAND_TYPES.put(UNMARK_AS_MINED_COMMAND, CommandType.UNMARK_AS_MINED);
 		String commandType = String.format(
 			"(?<%s>(%s))",
 			COMMAND_TYPE_GROUP,
@@ -42,10 +43,7 @@ public class Controller {
 		COMMAND_PATTERN = Pattern.compile(String.format("%s\\h+%s\\h+%s", commandType, row, column));
 	}
 
-	private final Model model;
-
 	public Controller(Model model, Reader input, Writer errors) {
-		this.model = model;
 		new Thread(() -> {
 			try (BufferedReader reader = new BufferedReader(input)){
 				try (PrintWriter errorWriter = new PrintWriter(errors)){
@@ -55,7 +53,7 @@ public class Controller {
 							break;
 						}
 						try {
-							parseCommand(line).run();
+							model.execute(parseCommand(line));
 						} catch (ParsingException e){
 							errorWriter.println(e.getMessage());
 						}
@@ -67,16 +65,16 @@ public class Controller {
 		}).start();
 	}
 
-	private Runnable parseCommand(String line) throws ParsingException {
+	private Command parseCommand(String line) throws ParsingException {
 		Matcher matcher = COMMAND_PATTERN.matcher(line);
 		if (!matcher.matches()){
 			throw new ParsingException(String.format("Command `%s` does not match pattern %s", line, COMMAND_PATTERN));
 		}
-		BiConsumer<Model, MatrixCoordinate> commandType = COMMAND_TYPES.get(matcher.group(COMMAND_TYPE_GROUP));
+		CommandType commandType = COMMAND_TYPES.get(matcher.group(COMMAND_TYPE_GROUP));
 		int rowIndex = parseIndex(matcher.group(ROW_GROUP));
 		int columnIndex = parseIndex(matcher.group(COLUMN_GROUP));
 		MatrixCoordinate coordinate = new MatrixCoordinate(rowIndex, columnIndex);
-		return () -> commandType.accept(model, coordinate);
+		return new Command(commandType, coordinate);
 	}
 
 	private static int parseIndex(String source) throws ParsingException {

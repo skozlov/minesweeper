@@ -4,6 +4,7 @@ import com.github.skozlov.mines.core.Field;
 import com.github.skozlov.mines.core.FieldState;
 import com.github.skozlov.mines.core.MatrixCoordinate;
 import com.github.skozlov.mines.core.MatrixDimension;
+import com.github.skozlov.mines.core.command.Command;
 
 import java.util.Collection;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -28,6 +29,10 @@ public final class Model {
 
 	public FieldState getFieldState() {
 		return field;
+	}
+
+	public void execute(Command command){
+		modify(field -> field.execute(command));
 	}
 
 	public void open(MatrixCoordinate coordinate) {
