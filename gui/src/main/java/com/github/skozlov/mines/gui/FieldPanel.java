@@ -1,8 +1,8 @@
 package com.github.skozlov.mines.gui;
 
 import com.github.skozlov.mines.core.FieldState;
-import com.github.skozlov.mines.core.MatrixCoordinate;
-import com.github.skozlov.mines.core.MatrixDimension;
+import com.github.skozlov.mines.commons.matrix.MatrixCoordinate;
+import com.github.skozlov.mines.commons.matrix.MatrixDimension;
 import com.github.skozlov.mines.model.Model;
 
 import javax.swing.*;
@@ -51,7 +51,7 @@ public class FieldPanel extends JPanel {
 	private void update(FieldState field){
 		invokeLater(() -> {
 			if (cells == null){
-				MatrixDimension dimension = field.getDimension();
+				MatrixDimension dimension = field.getCells().getDimension();
 				int rowNumber = dimension.getRowNumber();
 				int columnNumber = dimension.getColumnNumber();
 				cells = new CellGui[rowNumber][];
@@ -60,14 +60,14 @@ public class FieldPanel extends JPanel {
 					cells[rowIndex] = row;
 					for (int columnIndex = 0; columnIndex < columnNumber; columnIndex++){
 						MatrixCoordinate coordinate = new MatrixCoordinate(rowIndex, columnIndex);
-						CellGui cell = new CellGui(field.getCell(coordinate), coordinate, model);
+						CellGui cell = new CellGui(field.getCells().get(coordinate), coordinate, model);
 						row[columnIndex] = cell;
 						gridPanel.add(cell);
 					}
 				}
 			} else {
-				field.getDimension().forEachCoordinate(coordinate ->
-					cells[coordinate.getRowIndex()][coordinate.getColumnIndex()].update(field.getCell(coordinate))
+				field.getCells().getDimension().forEachCoordinate(coordinate ->
+					cells[coordinate.getRowIndex()][coordinate.getColumnIndex()].update(field.getCells().get(coordinate))
 				);
 			}
 		});

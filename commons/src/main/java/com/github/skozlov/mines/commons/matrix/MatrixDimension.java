@@ -1,4 +1,4 @@
-package com.github.skozlov.mines.core;
+package com.github.skozlov.mines.commons.matrix;
 
 import java.util.ArrayList;
 import java.util.List;

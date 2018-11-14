@@ -1,6 +1,6 @@
 package com.github.skozlov.mines.core.command;
 
-import com.github.skozlov.mines.core.MatrixCoordinate;
+import com.github.skozlov.mines.commons.matrix.MatrixCoordinate;
 
 import java.util.Objects;
 

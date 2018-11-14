@@ -1,5 +1,7 @@
 package com.github.skozlov.mines.core;
 
+import com.github.skozlov.mines.commons.matrix.MatrixCoordinate;
+
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;

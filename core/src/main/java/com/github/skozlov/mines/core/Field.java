@@ -1,61 +1,46 @@
 package com.github.skozlov.mines.core;
 
-import java.util.Arrays;
+import com.github.skozlov.mines.commons.matrix.Matrix;
+import com.github.skozlov.mines.commons.matrix.MatrixCoordinate;
+import com.github.skozlov.mines.commons.matrix.MatrixDimension;
+
 import java.util.Set;
 
 public final class Field {
-	private final Cell[][] cells;
-	private final MatrixDimension dimension;
 	private final int mineNumber;
+	private final Matrix<Cell> cells;
 
 	public Field(MatrixDimension dimension, Set<MatrixCoordinate> mineCoordinates){
-		this.dimension = dimension;
 		mineNumber = mineCoordinates.size();
 		int cellNumber = dimension.getCellNumber();
 		if (mineNumber >= cellNumber){
 			throw new IllegalArgumentException(String.format("%d cells, %d are mined", cellNumber, mineNumber));
 		}
-		int columnNumber = dimension.getColumnNumber();
-		cells = new Cell[dimension.getRowNumber()][];
-		for (int rowIndex = 0; rowIndex < cells.length; rowIndex++){
-			cells[rowIndex] = new Cell[columnNumber];
-		}
-		mineCoordinates.forEach(coordinate -> {
-			coordinate.checkFor(dimension);
-			cells[coordinate.getRowIndex()][coordinate.getColumnIndex()] = Cell.Mined.INSTANCE;
-		});
-		dimension.forEachCoordinate(coordinate -> {
-			int rowIndex = coordinate.getRowIndex();
-			int columnIndex = coordinate.getColumnIndex();
-			if (cells[rowIndex][columnIndex] == null){
-				cells[rowIndex][columnIndex] = new Cell.Free(
+		mineCoordinates.forEach(coordinate -> coordinate.checkFor(dimension));
+		cells = Matrix.create(
+			dimension,
+			coordinate -> mineCoordinates.contains(coordinate)
+				? Cell.Mined.INSTANCE
+				: new Cell.Free(
 					(int) coordinate.getNeighbors(dimension).stream()
-						.filter(c -> {
-							Cell cell = cells[c.getRowIndex()][c.getColumnIndex()];
-							return cell != null && cell.isMined();
-						})
+						.filter(mineCoordinates::contains)
 						.count()
-				);
-			}
-		});
-	}
-
-	public MatrixDimension getDimension() {
-		return dimension;
+			),
+			Cell.class
+		);
 	}
 
 	public int getMineNumber() {
 		return mineNumber;
 	}
 
-	public Cell getCell(MatrixCoordinate coordinate) {
-		coordinate.checkFor(dimension);
-		return cells[coordinate.getRowIndex()][coordinate.getColumnIndex()];
+	public Matrix<Cell> getCells() {
+		return cells;
 	}
 
 	@Override
 	public int hashCode() {
-		return Arrays.deepHashCode(cells);
+		return cells.hashCode();
 	}
 
 	@Override
@@ -67,6 +52,6 @@ public final class Field {
 			return false;
 		}
 		Field that = (Field) obj;
-		return this.mineNumber == that.mineNumber && Arrays.deepEquals(this.cells, that.cells);
+		return this.mineNumber == that.mineNumber && this.cells.equals(that.cells);
 	}
 }

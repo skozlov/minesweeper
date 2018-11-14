@@ -2,8 +2,8 @@ package com.github.skozlov.mines.model;
 
 import com.github.skozlov.mines.core.Field;
 import com.github.skozlov.mines.core.FieldState;
-import com.github.skozlov.mines.core.MatrixCoordinate;
-import com.github.skozlov.mines.core.MatrixDimension;
+import com.github.skozlov.mines.commons.matrix.MatrixCoordinate;
+import com.github.skozlov.mines.commons.matrix.MatrixDimension;
 import com.github.skozlov.mines.core.command.Command;
 
 import java.util.Collection;
@@ -20,7 +20,7 @@ public final class Model {
 
 	public Model(Field field){
 		this.field = FieldState.allIntact(field);
-		dimension = field.getDimension();
+		dimension = field.getCells().getDimension();
 	}
 
 	public MatrixDimension getDimension(){

@@ -1,7 +1,7 @@
 package com.github.skozlov.mines.gui;
 
 import com.github.skozlov.mines.core.CellState;
-import com.github.skozlov.mines.core.MatrixCoordinate;
+import com.github.skozlov.mines.commons.matrix.MatrixCoordinate;
 import com.github.skozlov.mines.model.Model;
 
 import javax.swing.*;

@@ -1,6 +1,6 @@
 package com.github.skozlov.mines.cli;
 
-import com.github.skozlov.mines.core.MatrixCoordinate;
+import com.github.skozlov.mines.commons.matrix.MatrixCoordinate;
 import com.github.skozlov.mines.core.command.Command;
 import com.github.skozlov.mines.core.command.CommandType;
 import com.github.skozlov.mines.model.Model;

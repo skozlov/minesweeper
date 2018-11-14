@@ -3,7 +3,7 @@ package com.github.skozlov.mines.app;
 import com.github.skozlov.mines.cli.Controller;
 import com.github.skozlov.mines.cli.View;
 import com.github.skozlov.mines.core.FieldParameters;
-import com.github.skozlov.mines.core.MatrixDimension;
+import com.github.skozlov.mines.commons.matrix.MatrixDimension;
 import org.apache.commons.cli.*;
 
 import java.util.LinkedHashMap;

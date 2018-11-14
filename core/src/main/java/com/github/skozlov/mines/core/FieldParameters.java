@@ -1,5 +1,7 @@
 package com.github.skozlov.mines.core;
 
+import com.github.skozlov.mines.commons.matrix.MatrixDimension;
+
 import java.util.Objects;
 
 public final class FieldParameters {

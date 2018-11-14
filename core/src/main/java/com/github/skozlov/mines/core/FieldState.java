@@ -1,6 +1,9 @@
 package com.github.skozlov.mines.core;
 
 import com.github.skozlov.mines.commons.Mutable;
+import com.github.skozlov.mines.commons.matrix.Matrix;
+import com.github.skozlov.mines.commons.matrix.MatrixCoordinate;
+import com.github.skozlov.mines.commons.matrix.MatrixDimension;
 import com.github.skozlov.mines.core.command.Command;
 
 import java.util.*;
@@ -8,8 +11,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public final class FieldState {
-	private final CellState[][] cells;
-	private final MatrixDimension dimension;
+	private final Matrix<CellState> cells;
 	private final int mineNumber;
 	private final int markedAsMinedNumber;
 	private final int intactNumber;
@@ -17,14 +19,13 @@ public final class FieldState {
 	private final boolean failed;
 
 	private FieldState(
-		CellState[][] cells,
+		Matrix<CellState> cells,
 		int markedAsMinedNumber,
 		int mineNumber,
 		boolean exploded,
 		int intactNumber
 	) {
 		this.cells = cells;
-		dimension = new MatrixDimension(cells.length, cells[0].length);
 		this.markedAsMinedNumber = markedAsMinedNumber;
 		this.mineNumber = mineNumber;
 		this.intactNumber = intactNumber;
@@ -33,18 +34,13 @@ public final class FieldState {
 	}
 
 	public static FieldState allIntact(Field field) {
-		MatrixDimension dimension = field.getDimension();
-		CellState[][] cells = new CellState[dimension.getRowNumber()][];
-		int columnNumber = dimension.getColumnNumber();
-		for (int rowIndex = 0; rowIndex < cells.length; rowIndex++){
-			cells[rowIndex] = new CellState[columnNumber];
-		}
-		dimension.forEachCoordinate(coordinate ->
-			cells[coordinate.getRowIndex()][coordinate.getColumnIndex()] =
-				new CellState.Intact(field.getCell(coordinate))
-		);
+		MatrixDimension dimension = field.getCells().getDimension();
 		return new FieldState(
-			cells,
+			Matrix.create(
+				dimension,
+				coordinate -> new CellState.Intact(field.getCells().get(coordinate)),
+				CellState.class
+			),
 			0,
 			field.getMineNumber(),
 			false,
@@ -52,8 +48,8 @@ public final class FieldState {
 		);
 	}
 
-	public MatrixDimension getDimension() {
-		return dimension;
+	public Matrix<CellState> getCells() {
+		return cells;
 	}
 
 	public int getMineNumber() {
@@ -62,15 +58,6 @@ public final class FieldState {
 
 	public int getMarkedAsMinedNumber() {
 		return markedAsMinedNumber;
-	}
-
-	public CellState getCell(MatrixCoordinate coordinate) {
-		coordinate.checkFor(dimension);
-		return getCellNoChecks(coordinate);
-	}
-
-	private CellState getCellNoChecks(MatrixCoordinate coordinate) {
-		return cells[coordinate.getRowIndex()][coordinate.getColumnIndex()];
 	}
 
 	public boolean isGameOver() {
@@ -92,18 +79,18 @@ public final class FieldState {
 	}
 
 	public FieldState open(MatrixCoordinate coordinate) {
-		return (isGameOver() || getCell(coordinate).isOpen()) ? this : open(Collections.singleton(coordinate));
+		return (isGameOver() || cells.get(coordinate).isOpen()) ? this : open(Collections.singleton(coordinate));
 	}
 
 	public FieldState openIntactNeighbors(MatrixCoordinate coordinate) {
-		CellState cell = getCell(coordinate);
+		CellState cell = cells.get(coordinate);
 		if (isGameOver() || !cell.isOpen()){
 			return this;
 		}
-		Collection<MatrixCoordinate> neighbors = coordinate.getNeighbors(dimension);
-		return neighbors.stream().map(this::getCellNoChecks).filter(CellState::isMarkedAsMined).count()
+		Collection<MatrixCoordinate> neighbors = coordinate.getNeighbors(cells.getDimension());
+		return neighbors.stream().filter(coord -> cells.get(coord).isMarkedAsMined()).count()
 			== (long)((Cell.Free)cell.getCell()).getNeighborMineNumber()
-			? open(neighbors.stream().filter(coord -> getCellNoChecks(coord).isIntact()).collect(Collectors.toList()))
+			? open(neighbors.stream().filter(coord -> cells.get(coord).isIntact()).collect(Collectors.toList()))
 			: this;
 	}
 
@@ -111,79 +98,71 @@ public final class FieldState {
 		Mutable<MatrixCoordinate> explodedCoordinate = new Mutable<>(null);
 		Collection<MatrixCoordinate> consideredCoordinates = new HashSet<>();
 		Queue<MatrixCoordinate> coordinatesToConsider = new LinkedList<>(coordinates);
+		MatrixDimension dimension = cells.getDimension();
 		while (explodedCoordinate.value == null && !coordinatesToConsider.isEmpty()){
 			MatrixCoordinate coordinate = coordinatesToConsider.remove();
 			if (consideredCoordinates.contains(coordinate)){
 				continue;
 			}
 			consideredCoordinates.add(coordinate);
-			Cell cell = getCellNoChecks(coordinate).getCell();
+			Cell cell = cells.get(coordinate).getCell();
 			cell.fold(
 				mined -> explodedCoordinate.value = coordinate,
 				free -> {
 					if (free.getNeighborMineNumber() == 0){
 						coordinatesToConsider.addAll(
 							coordinate.getNeighbors(dimension).stream()
-								.filter(neighbor -> getCellNoChecks(neighbor).isIntact())
+								.filter(neighbor -> cells.get(neighbor).isIntact())
 								.collect(Collectors.toList())
 						);
 					}
 				}
 			);
 		}
-		CellState[][] cells = copyCells();
-		if (explodedCoordinate.value != null){
-			dimension.forEachCoordinate(coordinate -> {
-				int rowIndex = coordinate.getRowIndex();
-				int columnIndex = coordinate.getColumnIndex();
-				CellState cellState = cells[rowIndex][columnIndex];
-				Cell cell = cellState.getCell();
-				if (cellState.isIntact()){
-					cells[rowIndex][columnIndex] = cell.isMined()
-						? coordinate.equals(explodedCoordinate.value)
+		return explodedCoordinate.value != null
+			? new FieldState(
+				cells.map((cellState, coordinate) -> {
+					Cell cell = cellState.getCell();
+					if (cellState.isIntact() && cell.isMined()) {
+						return coordinate.equals(explodedCoordinate.value)
 							? CellState.Exploded.INSTANCE
-							: CellState.Open.of(cell)
-						: cellState;
-				} else if (cellState.isMarkedAsMined() && !cell.isMined()){
-					cells[rowIndex][columnIndex] = new CellState.WronglyMarkedAsMined(cell);
-				}
-			});
-			return new FieldState(
-				cells,
-				getCellNoChecks(explodedCoordinate.value).isMarkedAsMined()
+							: CellState.Open.of(cell);
+					} else if (cellState.isMarkedAsMined() && !cell.isMined()){
+						return new CellState.WronglyMarkedAsMined(cell);
+					}
+					return cellState;
+				}),
+				cells.get(explodedCoordinate.value).isMarkedAsMined()
 					? markedAsMinedNumber - 1
 					: markedAsMinedNumber, mineNumber,
 				true,
 				intactNumber
+			)
+			: new FieldState(
+				cells.map((cellState, coordinate) ->
+					consideredCoordinates.contains(coordinate)
+						? CellState.Open.of(cellState.getCell())
+						: cellState
+				),
+				markedAsMinedNumber
+					- (int)consideredCoordinates.stream().filter(c -> cells.get(c).isMarkedAsMined()).count(),
+				mineNumber,
+				false,
+				intactNumber - consideredCoordinates.size()
 			);
-		}
-		consideredCoordinates.forEach(coordinate -> {
-			int rowIndex = coordinate.getRowIndex();
-			int columnIndex = coordinate.getColumnIndex();
-			cells[rowIndex][columnIndex] = CellState.Open.of(cells[rowIndex][columnIndex].getCell());
-		});
-		return new FieldState(
-			cells,
-			markedAsMinedNumber
-				- (int)consideredCoordinates.stream().filter(c -> getCellNoChecks(c).isMarkedAsMined()).count(),
-			mineNumber,
-			false,
-			intactNumber - consideredCoordinates.size()
-		);
+
 	}
 
 	public FieldState markAsMined(MatrixCoordinate coordinate) {
 		if (isGameOver()){
 			return this;
 		}
-		CellState cell = getCell(coordinate);
+		CellState cell = cells.get(coordinate);
 		if (!cell.isIntact()){
 			return this;
 		}
-		CellState[][] cells = copyCells();
-		cells[coordinate.getRowIndex()][coordinate.getColumnIndex()] = CellState.MarkedAsMined.of(cell.getCell());
 		return new FieldState(
-			cells,
+			cells.set(coordinate, CellState.MarkedAsMined.of(cell.getCell())),
 			markedAsMinedNumber + 1,
 			mineNumber,
 			false,
@@ -195,14 +174,12 @@ public final class FieldState {
 		if (isGameOver()){
 			return this;
 		}
-		CellState cell = getCell(coordinate);
+		CellState cell = cells.get(coordinate);
 		if (!cell.isMarkedAsMined()){
 			return this;
 		}
-		CellState[][] cells = copyCells();
-		cells[coordinate.getRowIndex()][coordinate.getColumnIndex()] = new CellState.Intact(cell.getCell());
 		return new FieldState(
-			cells,
+			cells.set(coordinate, new CellState.Intact(cell.getCell())),
 			markedAsMinedNumber - 1,
 			mineNumber,
 			false,
@@ -210,17 +187,9 @@ public final class FieldState {
 		);
 	}
 
-	private CellState[][] copyCells() {
-		CellState[][] cells = new CellState[this.cells.length][];
-		for (int i = 0; i < cells.length; i++){
-			cells[i] = Arrays.copyOf(this.cells[i], this.cells[i].length);
-		}
-		return cells;
-	}
-
 	@Override
 	public int hashCode() {
-		return Arrays.deepHashCode(cells);
+		return cells.hashCode();
 	}
 
 	@Override
@@ -237,6 +206,6 @@ public final class FieldState {
 			&& this.intactNumber == that.intactNumber
 			&& this.won == that.won
 			&& this.failed == that.failed
-			&& Arrays.deepEquals(this.cells, that.cells);
+			&& this.cells.equals(that.cells);
 	}
 }

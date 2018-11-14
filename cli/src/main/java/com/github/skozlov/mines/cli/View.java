@@ -2,7 +2,7 @@ package com.github.skozlov.mines.cli;
 
 import com.github.skozlov.mines.core.CellState;
 import com.github.skozlov.mines.core.FieldState;
-import com.github.skozlov.mines.core.MatrixDimension;
+import com.github.skozlov.mines.commons.matrix.MatrixDimension;
 import com.github.skozlov.mines.model.Model;
 
 import java.io.PrintWriter;
@@ -47,12 +47,12 @@ public final class View {
 	}
 
 	private String fieldToString() {
-		MatrixDimension dimension = field.getDimension();
+		MatrixDimension dimension = field.getCells().getDimension();
 		StringBuilder buffer = new StringBuilder(
 			dimension.getCellNumber() + lineSeparator().length() * dimension.getRowNumber()
 		);
 		dimension.forEachCoordinate(coordinate -> {
-			buffer.append(cellToChar(field.getCell(coordinate)));
+			buffer.append(cellToChar(field.getCells().get(coordinate)));
 			if (coordinate.getColumnIndex() == dimension.getMaxColumnIndex()){
 				buffer.append(lineSeparator());
 			}
