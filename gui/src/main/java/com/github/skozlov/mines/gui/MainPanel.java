@@ -25,7 +25,7 @@ public class MainPanel extends JPanel {
 
 	private void onState(FieldState field){
 		invokeLater(() -> {
-			if (field.isWon()){
+			if (field.getPlayerPov().isWon()){
 				JOptionPane.showMessageDialog(MainPanel.this, "You won");
 			}
 		});

@@ -81,4 +81,9 @@ public final class MatrixCoordinate {
 		MatrixCoordinate that = (MatrixCoordinate) obj;
 		return this.rowIndex == that.rowIndex && this.columnIndex == that.columnIndex;
 	}
+
+	@Override
+	public String toString() {
+		return String.format("(%d,%d)", rowIndex, columnIndex);
+	}
 }

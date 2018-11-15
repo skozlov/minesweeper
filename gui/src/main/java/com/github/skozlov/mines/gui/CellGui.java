@@ -1,7 +1,9 @@
 package com.github.skozlov.mines.gui;
 
-import com.github.skozlov.mines.core.CellState;
 import com.github.skozlov.mines.commons.matrix.MatrixCoordinate;
+import com.github.skozlov.mines.core.command.Command;
+import com.github.skozlov.mines.core.command.CommandType;
+import com.github.skozlov.mines.core.playerPov.CellPlayerPov;
 import com.github.skozlov.mines.model.Model;
 
 import javax.swing.*;
@@ -16,9 +18,9 @@ import static java.awt.Color.*;
 import static javax.swing.SwingUtilities.*;
 
 public class CellGui extends JButton {
-	private CellState cell;
+	private CellPlayerPov cell;
 
-	public CellGui(CellState cell, MatrixCoordinate coordinate, Model model) {
+	public CellGui(CellPlayerPov cell, MatrixCoordinate coordinate, Model model) {
 		this.cell = cell;
 		addMouseListener(new MouseAdapter() {
 			private boolean leftReleaseAwaiting = false;
@@ -63,7 +65,7 @@ public class CellGui extends JButton {
 					wheelReleaseAwaiting = false;
 					if (leftReleaseAwaiting){
 						leftReleaseAwaiting = false;
-						executeInBackground(() -> model.open(coordinate));
+						executeInBackground(() -> model.execute(new Command(CommandType.OPEN, coordinate)));
 					}
 				} else if (isRightMouseButton(e)){
 					leftReleaseAwaiting = false;
@@ -71,9 +73,13 @@ public class CellGui extends JButton {
 					if (rightReleaseAwaiting){
 						rightReleaseAwaiting = false;
 						if (CellGui.this.cell.isMarkedAsMined()){
-							executeInBackground(() -> model.unmarkAsMined(coordinate));
+							executeInBackground(() ->
+								model.execute(new Command(CommandType.UNMARK_AS_MINED, coordinate))
+							);
 						} else {
-							executeInBackground(() -> model.markAsMined(coordinate));
+							executeInBackground(() ->
+								model.execute(new Command(CommandType.MARK_AS_MINED, coordinate))
+							);
 						}
 					}
 				} else if (isMiddleMouseButton(e)){
@@ -81,7 +87,9 @@ public class CellGui extends JButton {
 					rightReleaseAwaiting = false;
 					if (wheelReleaseAwaiting){
 						wheelReleaseAwaiting = false;
-						executeInBackground(() -> model.openIntactNeighbors(coordinate));
+						executeInBackground(() ->
+							model.execute(new Command(CommandType.OPEN_INTACT_NEIGHBORS, coordinate))
+						);
 					}
 				}
 			}
@@ -97,12 +105,39 @@ public class CellGui extends JButton {
 		update(cell);
 	}
 
-	public void update(CellState cell) {
+	public void update(CellPlayerPov cell) {
 		this.cell = cell;
 		cell.fold(
 			intact -> {
 				setText("");
 				setBackground(null);
+			},
+			open -> {
+				int neighborMineNumber = open.getNeighborMineNumber();
+				setText(neighborMineNumber == 0 ? "" : Integer.toString(neighborMineNumber));
+				Color color = null;
+				if (neighborMineNumber == 1){
+					color = BLUE;
+				} else if (neighborMineNumber == 2){
+					color = GREEN;
+				} else if (neighborMineNumber == 3){
+					color = RED;
+				} else if (neighborMineNumber == 4){
+					color = new Color(128, 0, 128);
+				} else if (neighborMineNumber == 5){
+					color = new Color(128, 0, 0);
+				} else if (neighborMineNumber == 6){
+					color = new Color(64, 224, 208);
+				} else if (neighborMineNumber == 7){
+					color = BLACK;
+				} else if (neighborMineNumber == 8){
+					color = GRAY;
+				}
+				if (color != null) {
+					setForeground(color);
+				}
+				setFont(FontUtils.strikeOff(getFont()));
+				setBackground(WHITE);
 			},
 			markedAsMined -> {
 				setText("⚑");
@@ -110,52 +145,23 @@ public class CellGui extends JButton {
 				setForeground(RED);
 				setBackground(null);
 			},
-			wronglyMarkedAsMined -> {
-				setText("⚑");
-				setFont(FontUtils.strikeOn(getFont()));
-				setForeground(RED);
-				setBackground(null);
-			},
-			open -> {
-				open.getCell().fold(
-					mined -> {
-						setText("*");
-						setForeground(BLACK);
-					},
-					free -> {
-						int neighborMineNumber = free.getNeighborMineNumber();
-						setText(neighborMineNumber == 0 ? "" : Integer.toString(neighborMineNumber));
-						Color color = null;
-						if (neighborMineNumber == 1){
-							color = BLUE;
-						} else if (neighborMineNumber == 2){
-							color = GREEN;
-						} else if (neighborMineNumber == 3){
-							color = RED;
-						} else if (neighborMineNumber == 4){
-							color = new Color(128, 0, 128);
-						} else if (neighborMineNumber == 5){
-							color = new Color(128, 0, 0);
-						} else if (neighborMineNumber == 6){
-							color = new Color(64, 224, 208);
-						} else if (neighborMineNumber == 7){
-							color = BLACK;
-						} else if (neighborMineNumber == 8){
-							color = GRAY;
-						}
-						if (color != null) {
-							setForeground(color);
-						}
-					}
-				);
-				setFont(FontUtils.strikeOff(getFont()));
-				setBackground(WHITE);
-			},
 			exploded -> {
 				setText("*");
 				setFont(FontUtils.strikeOff(getFont()));
 				setForeground(BLACK);
 				setBackground(RED);
+			},
+			mined -> {
+				setText("*");
+				setForeground(BLACK);
+				setFont(FontUtils.strikeOff(getFont()));
+				setBackground(WHITE);
+			},
+			wronglyMarkedAsMined -> {
+				setText("⚑");
+				setFont(FontUtils.strikeOn(getFont()));
+				setForeground(RED);
+				setBackground(null);
 			}
 		);
 	}

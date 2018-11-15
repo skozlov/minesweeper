@@ -2,8 +2,11 @@ package com.github.skozlov.mines.commons.matrix;
 
 import java.lang.reflect.Array;
 import java.util.Arrays;
+import java.util.Set;
 import java.util.function.BiFunction;
+import java.util.function.BiPredicate;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 public final class Matrix<T> {
 	private final T[][] cells;
@@ -34,6 +37,12 @@ public final class Matrix<T> {
 		return cells[coordinate.getRowIndex()][coordinate.getColumnIndex()];
 	}
 
+	public Set<MatrixCoordinate> collectCoordinates(BiPredicate<MatrixCoordinate, T> condition){
+		return getDimension().coordinatesToList().stream()
+			.filter(coordinate -> condition.test(coordinate, get(coordinate)))
+			.collect(Collectors.toSet());
+	}
+
 	public Matrix<T> map(BiFunction<T, MatrixCoordinate, T> f){
 		T[][] cells = copyCells();
 		getDimension().forEachCoordinate(coordinate -> {
@@ -41,13 +50,6 @@ public final class Matrix<T> {
 			int columnIndex = coordinate.getColumnIndex();
 			cells[rowIndex][columnIndex] = f.apply(this.cells[rowIndex][columnIndex], coordinate);
 		});
-		return new Matrix<>(cells);
-	}
-
-	public Matrix<T> set(MatrixCoordinate coordinate, T value){
-		coordinate.checkFor(getDimension());
-		T[][] cells = copyCells();
-		cells[coordinate.getRowIndex()][coordinate.getColumnIndex()] = value;
 		return new Matrix<>(cells);
 	}
 

@@ -1,14 +1,12 @@
 package com.github.skozlov.mines.model;
 
-import com.github.skozlov.mines.core.Field;
-import com.github.skozlov.mines.core.FieldState;
-import com.github.skozlov.mines.commons.matrix.MatrixCoordinate;
 import com.github.skozlov.mines.commons.matrix.MatrixDimension;
+import com.github.skozlov.mines.core.Field;
 import com.github.skozlov.mines.core.command.Command;
+import com.github.skozlov.mines.core.FieldState;
 
 import java.util.Collection;
 import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.function.Function;
 
 public final class Model {
 	private final MatrixDimension dimension;
@@ -32,31 +30,11 @@ public final class Model {
 	}
 
 	public void execute(Command command){
-		modify(field -> field.execute(command));
-	}
-
-	public void open(MatrixCoordinate coordinate) {
-		modify(field -> field.open(coordinate));
-	}
-
-	public void openIntactNeighbors(MatrixCoordinate coordinate) {
-		modify(field -> field.openIntactNeighbors(coordinate));
-	}
-
-	public void markAsMined(MatrixCoordinate coordinate) {
-		modify(field -> field.markAsMined(coordinate));
-	}
-
-	public void unmarkAsMined(MatrixCoordinate coordinate) {
-		modify(field -> field.unmarkAsMined(coordinate));
-	}
-
-	private void modify(Function<FieldState, FieldState> modification){
 		synchronized (monitor){
-			if (field.isGameOver()){
+			if (field.getPlayerPov().isGameOver()){
 				return;
 			}
-			FieldState newField = modification.apply(field);
+			FieldState newField = field.execute(command);
 			if (newField == field){
 				return;
 			}

@@ -1,8 +1,9 @@
 package com.github.skozlov.mines.cli;
 
-import com.github.skozlov.mines.core.CellState;
-import com.github.skozlov.mines.core.FieldState;
+import com.github.skozlov.mines.commons.matrix.Matrix;
 import com.github.skozlov.mines.commons.matrix.MatrixDimension;
+import com.github.skozlov.mines.core.playerPov.CellPlayerPov;
+import com.github.skozlov.mines.core.FieldState;
 import com.github.skozlov.mines.model.Model;
 
 import java.io.PrintWriter;
@@ -36,7 +37,7 @@ public final class View {
 			}
 			this.field = field;
 			printField();
-			if (field.isWon()){
+			if (field.getPlayerPov().isWon()){
 				printWon();
 			}
 		});
@@ -47,12 +48,13 @@ public final class View {
 	}
 
 	private String fieldToString() {
-		MatrixDimension dimension = field.getCells().getDimension();
+		Matrix<CellPlayerPov> cells = field.getPlayerPov().getCells();
+		MatrixDimension dimension = cells.getDimension();
 		StringBuilder buffer = new StringBuilder(
 			dimension.getCellNumber() + lineSeparator().length() * dimension.getRowNumber()
 		);
 		dimension.forEachCoordinate(coordinate -> {
-			buffer.append(cellToChar(field.getCells().get(coordinate)));
+			buffer.append(cellToChar(cells.get(coordinate)));
 			if (coordinate.getColumnIndex() == dimension.getMaxColumnIndex()){
 				buffer.append(lineSeparator());
 			}
@@ -60,16 +62,14 @@ public final class View {
 		return buffer.toString();
 	}
 
-	private char cellToChar(CellState cell) {
+	private char cellToChar(CellPlayerPov cell) {
 		return cell.fold(
 			intact -> INTACT_CELL,
+			open -> Integer.toString(open.getNeighborMineNumber()).charAt(0),
 			markedAsMined -> MARKED_CELL,
-			wronglyMarkedAsMined -> WRONGLY_MARKED_CELL,
-			open -> cell.getCell().fold(
-				mined -> MINED_CELL,
-				free -> Integer.toString(free.getNeighborMineNumber()).charAt(0)
-			),
-			exploded -> EXPLODED_CELL
+			exploded -> EXPLODED_CELL,
+			mined -> MINED_CELL,
+			wronglyMarkedAsMined -> WRONGLY_MARKED_CELL
 		);
 	}
 
