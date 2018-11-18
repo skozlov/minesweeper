@@ -20,6 +20,7 @@ public final class View {
 	public static final char MINED_CELL = '*';
 	public static final char EXPLODED_CELL = '@';
 	public static final String MINES_LEFT_SUFFIX = " mines left";
+	public static final String WON_MESSAGE = "You won";
 
 	private FieldState field;
 	private final Executor executor = Executors.newSingleThreadExecutor();
@@ -77,6 +78,6 @@ public final class View {
 	}
 
 	private void printWon(){
-		writer.println("You won");
+		writer.println(WON_MESSAGE);
 	}
 }
