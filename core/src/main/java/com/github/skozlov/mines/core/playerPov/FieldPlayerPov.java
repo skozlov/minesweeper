@@ -19,8 +19,7 @@ public final class FieldPlayerPov {
 	private final int mineNumber;
 	private final int markedAsMinedNumber;
 	private final int intactNumber;
-	private final boolean won;
-	private final boolean failed;
+	private final boolean exploded;
 
 	private FieldPlayerPov(
 		Matrix<CellPlayerPov> cells,
@@ -33,8 +32,7 @@ public final class FieldPlayerPov {
 		this.mineNumber = mineNumber;
 		this.markedAsMinedNumber = markedAsMinedNumber;
 		this.intactNumber = intactNumber;
-		this.won = !exploded && markedAsMinedNumber == mineNumber && intactNumber == 0;
-		this.failed = exploded;
+		this.exploded = exploded;
 	}
 
 	public static FieldPlayerPov allIntact(Field field) {
@@ -52,16 +50,16 @@ public final class FieldPlayerPov {
 		return cells;
 	}
 
-	public int getMarkedAsMinedNumber() {
-		return markedAsMinedNumber;
+	public int getMineNumberLeft(){
+		return mineNumber - markedAsMinedNumber;
 	}
 
 	public boolean isWon() {
-		return won;
+		return !exploded && intactNumber == 0 && getMineNumberLeft() == 0;
 	}
 
 	public boolean isGameOver(){
-		return won || failed;
+		return exploded || isWon();
 	}
 
 	public FieldPlayerPov openFree(Map<MatrixCoordinate, Cell.Free> cells){

@@ -19,6 +19,7 @@ public final class View {
 	public static final char WRONGLY_MARKED_CELL = '$';
 	public static final char MINED_CELL = '*';
 	public static final char EXPLODED_CELL = '@';
+	public static final String MINES_LEFT_SUFFIX = " mines left";
 
 	private FieldState field;
 	private final Executor executor = Executors.newSingleThreadExecutor();
@@ -50,9 +51,11 @@ public final class View {
 	private String fieldToString() {
 		Matrix<CellPlayerPov> cells = field.getPlayerPov().getCells();
 		MatrixDimension dimension = cells.getDimension();
+		String minesLeft =
+			Integer.toString(field.getPlayerPov().getMineNumberLeft()) + MINES_LEFT_SUFFIX + lineSeparator();
 		StringBuilder buffer = new StringBuilder(
-			dimension.getCellNumber() + lineSeparator().length() * dimension.getRowNumber()
-		);
+			 minesLeft.length() + dimension.getCellNumber() + lineSeparator().length() * dimension.getRowNumber()
+		).append(minesLeft);
 		dimension.forEachCoordinate(coordinate -> {
 			buffer.append(cellToChar(cells.get(coordinate)));
 			if (coordinate.getColumnIndex() == dimension.getMaxColumnIndex()){

@@ -20,8 +20,6 @@ public class MineCounter extends JLabel {
 	}
 
 	private void update(FieldState field){
-		invokeLater(() -> setText(Integer.toString(
-			field.getField().getMineNumber() - field.getPlayerPov().getMarkedAsMinedNumber()
-		)));
+		invokeLater(() -> setText(Integer.toString(field.getPlayerPov().getMineNumberLeft())));
 	}
 }
