@@ -11,7 +11,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 public final class Model {
 	private final MatrixDimension dimension;
 
-	private FieldState field;
+	private volatile FieldState field;
 	private final Object monitor = new Object();
 
 	private final Collection<ModelListener> listeners = new ConcurrentLinkedQueue<>();
