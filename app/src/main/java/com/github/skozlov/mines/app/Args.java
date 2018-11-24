@@ -31,6 +31,8 @@ public class Args {
 		put("expert", new FieldParameters(new MatrixDimension(16, 30), 99));
 	}};
 
+	private static final String BOT_KEY = "bot";
+
 	private static final CommandLineParser PARSER = new DefaultParser();
 
 	private static final Options OPTIONS = new Options()
@@ -38,6 +40,12 @@ public class Args {
 			Option.builder(HELP_KEY)
 				.longOpt("help")
 				.desc("Print help.")
+				.build()
+		)
+		.addOption(
+			Option.builder()
+				.longOpt(BOT_KEY)
+				.desc("Enable bot.")
 				.build()
 		)
 		.addOption(
@@ -126,6 +134,7 @@ public class Args {
 
 	private final boolean helpRequested;
 	private final FieldParameters fieldParameters;
+	private final boolean botEnabled;
 
 	public Args(String[] args) throws ParseException {
 		CommandLine options = PARSER.parse(OPTIONS, args);
@@ -145,6 +154,7 @@ public class Args {
 			.map(Integer::parseInt)
 			.orElseGet(() -> min(preset.getMineNumber(), rowNumber * columnNumber));
 		fieldParameters = new FieldParameters(new MatrixDimension(rowNumber, columnNumber), mineNumber);
+		botEnabled = options.hasOption(BOT_KEY);
 	}
 
 	public boolean isHelpRequested() {
@@ -187,5 +197,9 @@ public class Args {
 
 	public FieldParameters getFieldParameters() {
 		return fieldParameters;
+	}
+
+	public boolean isBotEnabled(){
+		return botEnabled;
 	}
 }

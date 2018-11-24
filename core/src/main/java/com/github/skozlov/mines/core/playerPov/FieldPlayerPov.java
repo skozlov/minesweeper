@@ -3,9 +3,8 @@ package com.github.skozlov.mines.core.playerPov;
 import com.github.skozlov.mines.commons.Mutable;
 import com.github.skozlov.mines.commons.matrix.Matrix;
 import com.github.skozlov.mines.commons.matrix.MatrixCoordinate;
-import com.github.skozlov.mines.commons.matrix.MatrixDimension;
 import com.github.skozlov.mines.core.Cell;
-import com.github.skozlov.mines.core.Field;
+import com.github.skozlov.mines.core.FieldParameters;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -16,32 +15,31 @@ import java.util.stream.Collectors;
 
 public final class FieldPlayerPov {
 	private final Matrix<CellPlayerPov> cells;
-	private final int mineNumber;
+	private final FieldParameters parameters;
 	private final int markedAsMinedNumber;
 	private final int intactNumber;
 	private final boolean exploded;
 
 	private FieldPlayerPov(
 		Matrix<CellPlayerPov> cells,
-		int mineNumber,
+		FieldParameters parameters,
 		int markedAsMinedNumber,
 		int intactNumber,
 		boolean exploded
 	) {
 		this.cells = cells;
-		this.mineNumber = mineNumber;
+		this.parameters = parameters;
 		this.markedAsMinedNumber = markedAsMinedNumber;
 		this.intactNumber = intactNumber;
 		this.exploded = exploded;
 	}
 
-	public static FieldPlayerPov allIntact(Field field) {
-		MatrixDimension dimension = field.getCells().getDimension();
+	public static FieldPlayerPov allIntact(FieldParameters parameters) {
 		return new FieldPlayerPov(
-			Matrix.create(dimension, c -> CellPlayerPov.Intact.INSTANCE, CellPlayerPov.class),
-			field.getMineNumber(),
+			Matrix.create(parameters.getDimension(), c -> CellPlayerPov.Intact.INSTANCE, CellPlayerPov.class),
+			parameters,
 			0,
-			dimension.getCellNumber(),
+			parameters.getDimension().getCellNumber(),
 			false
 		);
 	}
@@ -51,7 +49,7 @@ public final class FieldPlayerPov {
 	}
 
 	public int getMineNumberLeft(){
-		return mineNumber - markedAsMinedNumber;
+		return parameters.getMineNumber() - markedAsMinedNumber;
 	}
 
 	public boolean isWon() {
@@ -60,6 +58,10 @@ public final class FieldPlayerPov {
 
 	public boolean isGameOver(){
 		return exploded || isWon();
+	}
+
+	public FieldParameters getParameters(){
+		return parameters;
 	}
 
 	public FieldPlayerPov openFree(Map<MatrixCoordinate, Cell.Free> cells){
@@ -181,7 +183,7 @@ public final class FieldPlayerPov {
 		});
 		return new FieldPlayerPov(
 			this.cells.map((cell, coordinate) -> cells.getOrDefault(coordinate, cell)),
-			mineNumber,
+			parameters,
 			markedAsMinedNumber.value,
 			intactNumber.value,
 			explodedCoordinate.value != null

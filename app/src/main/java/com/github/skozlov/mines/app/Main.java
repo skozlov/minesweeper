@@ -1,5 +1,6 @@
 package com.github.skozlov.mines.app;
 
+import com.github.skozlov.mines.bot.Bot;
 import com.github.skozlov.mines.cli.CLI;
 import com.github.skozlov.mines.core.Field;
 import com.github.skozlov.mines.core.RandomFieldGenerator;
@@ -42,5 +43,8 @@ public class Main {
 			window.setExtendedState(window.getExtendedState() | Frame.MAXIMIZED_BOTH);
 			window.setVisible(true);
 		});
+		if (arguments.isBotEnabled()){
+			new Bot(model);
+		}
 	}
 }

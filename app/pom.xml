@@ -28,6 +28,11 @@
             <artifactId>commons-cli</artifactId>
             <version>1.4</version>
         </dependency>
+        <dependency>
+            <groupId>${groupId}</groupId>
+            <artifactId>mines-bot</artifactId>
+            <version>${version}</version>
+        </dependency>
     </dependencies>
 
     <build>

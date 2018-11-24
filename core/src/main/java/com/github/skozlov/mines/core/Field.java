@@ -7,14 +7,17 @@ import com.github.skozlov.mines.commons.matrix.MatrixDimension;
 import java.util.Set;
 
 public final class Field {
-	private final int mineNumber;
+	private final FieldParameters parameters;
 	private final Matrix<Cell> cells;
 
 	public Field(MatrixDimension dimension, Set<MatrixCoordinate> mineCoordinates){
-		mineNumber = mineCoordinates.size();
+		parameters = new FieldParameters(dimension, mineCoordinates.size());
 		int cellNumber = dimension.getCellNumber();
-		if (mineNumber >= cellNumber){
-			throw new IllegalArgumentException(String.format("%d cells, %d are mined", cellNumber, mineNumber));
+		if (parameters.getMineNumber() >= cellNumber){
+			throw new IllegalArgumentException(String.format(
+				"%d cells, %d are mined",
+				cellNumber, parameters.getMineNumber())
+			);
 		}
 		mineCoordinates.forEach(coordinate -> coordinate.checkFor(dimension));
 		cells = Matrix.create(
@@ -30,12 +33,12 @@ public final class Field {
 		);
 	}
 
-	public int getMineNumber() {
-		return mineNumber;
-	}
-
 	public Matrix<Cell> getCells() {
 		return cells;
+	}
+
+	public FieldParameters getParameters() {
+		return parameters;
 	}
 
 	@Override
@@ -52,6 +55,6 @@ public final class Field {
 			return false;
 		}
 		Field that = (Field) obj;
-		return this.mineNumber == that.mineNumber && this.cells.equals(that.cells);
+		return this.parameters.equals(that.parameters) && this.cells.equals(that.cells);
 	}
 }

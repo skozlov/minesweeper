@@ -47,4 +47,9 @@ public final class FieldParameters {
 		FieldParameters that = (FieldParameters) obj;
 		return this.mineNumber == that.mineNumber && this.dimension.equals(that.dimension);
 	}
+
+	@Override
+	public String toString() {
+		return String.format("%s with %d mines", dimension, mineNumber);
+	}
 }

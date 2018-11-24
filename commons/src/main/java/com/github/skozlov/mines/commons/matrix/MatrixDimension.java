@@ -47,6 +47,10 @@ public final class MatrixDimension {
 		return new ArrayList<>(coordinates);
 	}
 
+	public int getMaxColumnIndex() {
+		return columnNumber - 1;
+	}
+
 	@Override
 	public int hashCode() {
 		return Objects.hash(rowNumber, columnNumber);
@@ -64,7 +68,8 @@ public final class MatrixDimension {
 		return this.rowNumber == that.rowNumber && this.columnNumber == that.columnNumber;
 	}
 
-	public int getMaxColumnIndex() {
-		return columnNumber - 1;
+	@Override
+	public String toString() {
+		return String.format("%dx%d", rowNumber, columnNumber);
 	}
 }

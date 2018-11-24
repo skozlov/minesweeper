@@ -17,6 +17,7 @@
         <module>gui</module>
         <module>app</module>
         <module>cli</module>
+        <module>bot</module>
     </modules>
 
 </project>

@@ -21,7 +21,7 @@ public final class FieldState {
 	}
 
 	public static FieldState allIntact(Field field){
-		return new FieldState(field, FieldPlayerPov.allIntact(field));
+		return new FieldState(field, FieldPlayerPov.allIntact(field.getParameters()));
 	}
 
 	public Field getField() {
